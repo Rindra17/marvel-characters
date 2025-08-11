@@ -1,4 +1,5 @@
 
+const { log } = require('console');
 const express = require('express');
 const fs = require('fs/promises');
 const path = require('path');
@@ -21,6 +22,21 @@ app.get("/characters", async (req, res) => {
 });
 
 app.get("/characters/:id", async (req, res) => {
+  const characterId = parseInt(req.params.id);
+  try {
+    const data = await fs.readFile(filePath, "utf-8");
+    const jsonData = JSON.parse(data);
+
+    const characters = Array.isArray(jsonData) ? jsonData : jsonData.characters;
+
+    const character = characters.find((char) => char.id == characterId);
+
+    character ? res.json(character) : res.status(404).send("Not Found");
+  }
+  catch (error) {
+    console.error("Error reading or parsing JSON file:", error);
+    return res.status(500).send("Error reading or parsing JSON file");
+  }
 });
 
 app.post("/characters", async (req, res) => {
