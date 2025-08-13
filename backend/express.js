@@ -90,8 +90,40 @@ app.post("/characters", async (req, res) => {
   }
 });
 
-app.put("/characters/:id", (req, res) => {
+app.put("/characters/:id", async (req, res) => {
+  const characterId = parseInt(req.params.id);
+  const { name, realName, universe } = req.body;
 
+  if (!name && !realName && !universe) {
+    return res.status(400).json({ error: "Provide at least one field to update (name, realName, universe)" });
+  }
+
+  try {
+    const jsonData = await readJsonFile(filePath);
+    const characters = getCharacterArray(jsonData);
+    const characterIndex = characters.findIndex(char => char.id == characterId);
+
+    if (characterIndex === -1) {
+      console.error("Character Not Found: ", error);
+      return res.status(404).json({ error: "characters not found" });
+    }
+
+    characters[characterIndex] = {
+      id: characterId,
+      name: name != undefined ? name : characters[characterIndex].name,
+      realName: realName != undefined ? realName : characters[characterIndex].realName,
+      universe: universe != undefined ? universe : characters[characterIndex].universe
+    };
+    jsonData.characters = characters;
+
+    await writeJsonFile(filePath, jsonData);
+
+    return res.status(200).json(characters[characterIndex]);
+  }
+  catch (error) {
+    console.error("Error to update the character:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 app.delete("/characters/:id", async (req, res) => {
@@ -103,7 +135,6 @@ app.delete("/characters/:id", async (req, res) => {
       char => char.id == characterId
     );
 
-    console.log(characterIndex)
     if (characterIndex === -1) {
       console.error("Character Not Found: ", error);
       return res.status(404).json({ error: "characters not found" });
