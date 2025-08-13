@@ -6,6 +6,7 @@ const path = require('path');
 const cors = require('cors')
 
 const app = express();
+app.use(express.json());
 app.use(cors());
 
 const filePath = path.join(__dirname, "characters.json");
@@ -24,6 +25,12 @@ const writeJsonFile = async (filePath, characters) => {
 const getCharacterArray = (jsonData) => {
   return jsonData.characters || [];
 };
+
+const getNextId = (characters) => {
+  const maxId = characters.reduce((max, char) => Math.max(max, char.id), 0);
+
+  return maxId + 1;
+}
 
 app.get("/characters", async (req, res) => {
   try {
@@ -53,7 +60,34 @@ app.get("/characters/:id", async (req, res) => {
 });
 
 app.post("/characters", async (req, res) => {
+  const { name, realName, universe } = req.body;
 
+  if (!name || !realName || !universe) {
+    return res.status(400).json({ error: "Missing required fields (name, realName, universe)" });
+  }
+
+  try {
+    const jsonData = await readJsonFile(filePath);
+    const characters = getCharacterArray(jsonData);
+
+    const newCharacter = {
+      id: getNextId(characters),
+      name,
+      realName,
+      universe
+    };
+
+    characters.push(newCharacter);
+    jsonData.characters = characters;
+
+    await writeJsonFile(filePath, jsonData);
+
+    return res.status(201).json(newCharacter);
+  }
+  catch (error) {
+    console.error("Error creating the character:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 app.put("/characters/:id", (req, res) => {
