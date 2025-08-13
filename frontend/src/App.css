@@ -1,0 +1,13 @@
+@import url('https://fonts.googleapis.com/css2?family=Barrio&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-text: "Roboto", sans-serif;
+  --font-title: "Barrio", Arial; 
+}
+
+.background{
+    background-color: rgba(50, 48, 48, 0.186);
+    background-image: url("/bg.jpg");
+    background-position: center;
+}
