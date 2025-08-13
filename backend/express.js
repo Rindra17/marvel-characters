@@ -10,26 +10,38 @@ app.use(cors());
 
 const filePath = path.join(__dirname, "characters.json");
 
+const readJsonFile = async (filePath) => {
+  const data = await fs.readFile(filePath, "utf-8");
+  const parsedData = JSON.parse(data);
+
+  return parsedData;
+};
+
+const writeJsonFile = async (filePath, characters) => {
+  await fs.writeFile(filePath, JSON.stringify(characters, null, 2));
+};
+
+const getCharacterArray = (jsonData) => {
+  return jsonData.characters || [];
+};
+
 app.get("/characters", async (req, res) => {
   try {
-    const data = await fs.readFile(filePath, "utf-8");
-    const characters = JSON.parse(data);
-    res.json(characters.characters);
+    const jsonData = await readJsonFile(filePath);
+    const characters = getCharacterArray(jsonData);
+    return res.status(200).json(characters);
   }
   catch (error) {
     console.error("Error reading or parsing JSON file:", error);
-    return res.status(500).json({ error: "Error reading or parsing JSON file:" });
+    return res.status(500).json({ error: "Error reading or parsing JSON file" });
   }
 });
 
 app.get("/characters/:id", async (req, res) => {
   const characterId = parseInt(req.params.id);
   try {
-    const data = await fs.readFile(filePath, "utf-8");
-    const jsonData = JSON.parse(data);
-
-    const characters = Array.isArray(jsonData) ? jsonData : jsonData.characters;
-
+    const jsonData = await readJsonFile(filePath);
+    const characters = getCharacterArray(jsonData);
     const character = characters.find((char) => char.id == characterId);
 
     character ? res.json(character) : res.status(404).json({ error: "characters Not Found" });
@@ -51,12 +63,8 @@ app.put("/characters/:id", (req, res) => {
 app.delete("/characters/:id", async (req, res) => {
   const characterId = parseInt(req.params.id);
   try {
-
-    const data = await fs.readFile(filePath, "utf-8");
-    const jsonData = JSON.parse(data);
-
-    const characters = Array.isArray(jsonData) ? jsonData : jsonData.characters;
-
+    const jsonData = await readJsonFile(filePath);
+    const characters = getCharacterArray(jsonData);
     const characterIndex = characters.findIndex(
       char => char.id == characterId
     );
@@ -68,9 +76,9 @@ app.delete("/characters/:id", async (req, res) => {
     }
 
     characters.splice(characterIndex, 1);
-    console.log(characters);
+    jsonData.characters = characters;
 
-    await fs.writeFile(filePath, JSON.stringify(characters, null, 2));
+    await writeJsonFile(filePath, jsonData);
     return res.status(200).json({ message: "Character deleted successfully" });
   }
   catch (error) {
