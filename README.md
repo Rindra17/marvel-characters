@@ -27,28 +27,11 @@ The server will start on port 300 by default.
 
 ### API Endpoints
 
-#### Get all Characters
+| Endpoints              | description                                                                 |
+| ---------------------- | :-------------------------------------------------------------------------- |
+| GET /characters        | Returns an array of all characters.                                         |
+| GET /characters/:id    | Returns a Single Character by ID.                                           |
+| POST /characters       | Create a new characters. Require `name`, `realName`, and `universe` fields. |
+| DELETE /characters/:id | Delete a character by ID.                                                   |
 
-**Endpoints**: `GET /characters`
-
-Returns an array of all characters.
-
-#### Get Single Character
-
-**Endpoints**: `GET /characters/:id`
-
-Returns a Single Character by ID.
-
-#### Create a Character
-
-**Endpoints**: `POST /characters`
-
-Create a new characters. Require `name`, `realName`, and `universe` fields.
-
-#### Delete a Character
-
-**Endpoints**: `DELETE /characters/:id`
-
-Delete a character by ID.
-
-## Front-end
+## | Front-end
