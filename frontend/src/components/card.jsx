@@ -1,17 +1,50 @@
 import { useEffect, useState } from "react";
 import { EditCharacter } from ".";
-import { EditButton } from "./tools";
+import { DeleteButton, EditButton } from "./tools";
 
 export default function CharactersCard() {
   const [characters, setCharacters] = useState([]);
   const [editChar, setEditChar] = useState(null);
+  const [deleteById, setDeleteById] = useState(null);
+  const [showConfirm, setShowConfirm] = useState(null);
 
   useEffect(() => {
     fetch('http://localhost:3000/characters')
       .then(response => response.json())
       .then(data => setCharacters(data))
-      .catch(error => console.error("error", error));
+      .catch(error => console.error("Error", error));
   }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && showConfirm) {
+        cancelDelete();
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [showConfirm]);
+
+  const confirmDelete = (id) => {
+    setShowConfirm(null);
+    setDeleteById(id);
+
+    setTimeout(() => {
+      DeleteButton(id, setCharacters);
+      setDeleteById(null);
+    }, 300)
+  }
+
+  const handleDeleteClick = (id) => {
+    setShowConfirm(id);
+  }
+
+  const cancelDelete = () => {
+    setShowConfirm(null);
+  }
 
   if (characters.length === 0) {
     return (
@@ -25,7 +58,28 @@ export default function CharactersCard() {
     <div>
       <div className="flex flex-wrap justify-center gap-5 text-white ">
         {characters.map(char => (
-          <div key={char.id} className="flex bg-black opacity-80 rounded item-center w-2/12 duration-200">
+          <div key={char.id} className={`flex bg-black opacity-80 rounded item-center w-2/12 transform transition-all duration-200
+            ${deleteById === char.id ? 'scale-0 opacity-0 h-0 overflow-hidden' : 'scale-100 opacity-80'}
+          `}>
+            {showConfirm === char.id && (
+              <div className="absolute inset-0 bg-black/90 z-60 flex flex-col items-center justify-center p-4 rounded gap-2">
+                <p className="text-center text-xl"> Delete this chararcter?</p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => confirmDelete(char.id)}
+                    className="px-3 py-2 rounded bg-red-600 text-white cursor-pointer hover:bg-red-800 duration-100">
+                    Confirm
+                  </button>
+
+                  <button
+                    onClick={cancelDelete}
+                    className="px-3 py-2 rounded bg-blue-600 text-white cursor-pointer hover:bg-blue-800 duration-100"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
             <div className="flex flex-col min-w-xs rounded shadow-2xl p-5 gap-2 hover:scale-110 hover:bg-[#76161D]  duration-200">
               <p className="font-text"><span className="font-text font-bold">Id:</span> {char.id}</p>
               <p className="font-text"><span className="font-text font-bold">Name:</span> {char.name}</p>
@@ -40,6 +94,7 @@ export default function CharactersCard() {
                 </button>
 
                 <button
+                  onClick={(() => handleDeleteClick(char.id))}
                   className="px-3 py-2 rounded bg-red-600 text-white cursor-pointer hover:bg-red-800 duration-100"
                 >
                   Delete
