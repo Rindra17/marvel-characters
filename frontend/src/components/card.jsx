@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { EditCharacter } from ".";
+import { AddCharacter, EditCharacter } from ".";
 import { DeleteButton, EditButton } from "./tools";
 
 export default function CharactersCard() {
@@ -7,6 +7,7 @@ export default function CharactersCard() {
   const [editChar, setEditChar] = useState(null);
   const [deleteById, setDeleteById] = useState(null);
   const [showConfirm, setShowConfirm] = useState(null);
+  const [showAddForm, setShowAddForm] = useState(false);
 
   useEffect(() => {
     fetch('http://localhost:3000/characters')
@@ -55,10 +56,11 @@ export default function CharactersCard() {
   }
 
   return (
-    <div>
-      <div className="flex flex-wrap justify-center gap-5 text-white ">
+    <div className="h-[80vh] overflow-y-auto scroll-smooth p-4">
+      <div className="flex flex-wrap justify-center items-center gap-5 text-white ">
         {characters.map(char => (
-          <div key={char.id} className={`flex bg-black opacity-80 rounded item-center w-2/12 transform transition-all duration-200
+          <div key={char.id}
+            className={`flex bg-black opacity-80 rounded item-center w-2/12 transform transition-all duration-200
             ${deleteById === char.id ? 'scale-0 opacity-0 h-0 overflow-hidden' : 'scale-100 opacity-80'}
           `}>
             {showConfirm === char.id && (
@@ -103,6 +105,23 @@ export default function CharactersCard() {
             </div>
           </div>
         ))}
+        <div className="flex bg-black opacity-80 rounded item-center w-2/12 ">
+          <div className="flex flex-col min-w-xs rounded shadow-2xl p-5 gap-2 hover:scale-110 hover:bg-[#76161D]  duration-200">
+            <p className="font-text"><span className="font-text font-bold">Id:</span> </p>
+            <p className="font-text"><span className="font-text font-bold">Name:</span> ?</p>
+            <p className="font-text"><span className="font-text font-bold">realName:</span> ?</p>
+            <p className="font-text"><span className="font-text font-bold">universe:</span> ?</p>
+            <div className="flex justify-around items-center mt-5">
+              <button
+                onClick={() => setShowAddForm(true)}
+                className="px-3 py-2 rounded bg-green-400 text-white cursor-pointer hover:bg-green-700 duration-100"
+              >
+                Add
+              </button>
+            </div>
+
+          </div>
+        </div>
       </div>
 
       {editChar && (
@@ -110,6 +129,15 @@ export default function CharactersCard() {
           <EditCharacter
             editChar={editChar}
             setEditChar={setEditChar}
+            setCharacters={setCharacters}
+          />
+        </>
+      )}
+
+      {showAddForm && (
+        <>
+          <AddCharacter
+            setShowAddForm={setShowAddForm}
             setCharacters={setCharacters}
           />
         </>
