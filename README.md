@@ -29,9 +29,27 @@ The server will start on port 300 by default.
 
 | Endpoints              | description                                                                 |
 | ---------------------- | :-------------------------------------------------------------------------- |
-| GET /characters        | Returns an array of all characters.                                         |
+| GET /charactrs         | Returns an array of all characters.                                         |
 | GET /characters/:id    | Returns a Single Character by ID.                                           |
 | POST /characters       | Create a new characters. Require `name`, `realName`, and `universe` fields. |
 | DELETE /characters/:id | Delete a character by ID.                                                   |
 
 ## | Front-end
+
+4 Open a new terminal in the repository and go to Front-end
+
+```bash
+cd frontend
+```
+
+5 Install dependencies
+
+```bash
+npm Install
+```
+
+6 Start the web server
+
+```bash
+npm run dev
+```
