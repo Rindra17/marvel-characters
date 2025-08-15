@@ -10,4 +10,5 @@
     background-color: rgba(50, 48, 48, 0.186);
     background-image: url("/bg.jpg");
     background-position: center;
+    background-size: cover; 
 }
